@@ -21,16 +21,23 @@ def test_mini_weather():
 
     mini_hmm=np.load('./data/mini_weather_hmm.npz')
     mini_input=np.load('./data/mini_weather_sequences.npz')
-
-
-
-
-
-
+    mini=HiddenMarkovModel(observation_states=mini_hmm["observation_states"],
+                           hidden_states=mini_hmm["hidden_states"],
+                           prior_p=mini_hmm["prior_p"],
+                           transition_p=mini_hmm["transition_p"],
+                           emission_p=mini_hmm["emission_p"])
+    forward_p=mini.forward(mini_input["observation_state_sequence"])
+    assert round(forward_p,3)==0.118
     
-   
-    pass
+    viterbi_mini=mini.viterbi(decode_observation_states=mini_input["observation_state_sequence"])
+    assert (viterbi_mini==mini_input["best_hidden_state_sequence"]).all()
 
+    forward_edge=mini.forward([])
+    assert forward_edge==None
+    
+    with pytest.raises(ValueError):
+        viterbi_edge=mini.viterbi(["fish"])
+    
 
 
 def test_full_weather():
@@ -45,7 +52,18 @@ def test_full_weather():
 
     """
 
-    pass
+    full_hmm=np.load('./data/full_weather_hmm.npz')
+    full_input=np.load('./data/full_weather_sequences.npz')
+    full=HiddenMarkovModel(observation_states=full_hmm["observation_states"],
+                           hidden_states=full_hmm["hidden_states"],
+                           prior_p=full_hmm["prior_p"],
+                           transition_p=full_hmm["transition_p"],
+                           emission_p=full_hmm["emission_p"])
+    forward_p=full.forward(full_input["observation_state_sequence"])
+    assert round(forward_p,3)==0
+    
+    viterbi_mini=full.viterbi(decode_observation_states=full_input["observation_state_sequence"])
+    assert (viterbi_mini==full_input["best_hidden_state_sequence"]).all()
 
 
 
